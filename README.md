@@ -5,6 +5,7 @@
 ## 是什么
 
 prompt-forge 是 [omp / magpie 系 agent](https://github.com/TsukimioRinka) 的**明文调用技能**：`hide: true` + `disable-model-invocation: true`，模型平时看不到它、永远不会自动触发，只有你打出 `/skill:prompt-forge` 才唤醒。
+同时遵循 [Agent Skills 规范](https://agentskills.io/specification)：`SKILL.md` + `references/` 渐进披露结构与官方模板同构；`hide` / `disable-model-invocation` 为 omp 专属扩展字段。
 
 唤醒后，它拿你的 prompt 粗稿（或一句话意图），先从五个活跃 prompt 库并行取对标 → 拆解可迁移句式与行业结构 → 按专业骨架重构，交付固定四段：
 
@@ -28,6 +29,16 @@ prompt-forge 是 [omp / magpie 系 agent](https://github.com/TsukimioRinka) 的*
 - 每路的已核验命令、降级路径与实测数据见 [`references/sources.md`](references/sources.md)；
 - 锻造骨架（对话型八格 / agent 型七段）见 [`references/skeleton.md`](references/skeleton.md)。
 
+## 同类与定位
+
+| 同类 | 形态 | 路数 | 与本技能的差异 |
+|---|---|---|---|
+| [prompt-master](https://github.com/nidhinjs/prompt-master)（★16,290） | 同为「代写 prompt」的 Claude 技能 | 内嵌写作知识，零联网检索 | 最近的邻居，相反的路线：它靠静态内置知识，prompt-forge 每轮现取五路活库并标注采了谁 |
+| [prompt-optimizer](https://github.com/linshenkx/prompt-optimizer)（★42,399） | 浏览器扩展 / Web 工具 | LLM 自反馈迭代改写 | 贴 prompt → LLM 反复优化；无对标库、无来源标注 |
+| DSPy / [gepa](https://github.com/gepa-ai/gepa)（★7,564）/ [PromptWizard](https://github.com/microsoft/PromptWizard)（★4,030） | 程序化优化框架 | 评测驱动的训练/反射回路 | 面向开发者的管线，不是给人直接取用的技能 |
+
+普查方式与日期：GitHub 仓库搜索（`prompt skill claude` / `claude skills` / `prompt optimizer` / `prompt search engine`，按星排序）+ `filename:SKILL.md` 代码搜索查重（`prompts.csv` / `flowgpt`）+ awesome-claude-code 列表扫描；数字为 2026-11-25 当日实取。把「现检索外部活库 + 强制标注来源 + 逐路引用可复核」当主路径的同类，本轮未搜到。
+
 ## 安装
 
 ```bash
@@ -41,6 +52,14 @@ git clone https://github.com/TsukimioRinka/prompt-forge.git ~/.omp/agent/skills/
 ```
 
 不带粗稿、只有一句话意图也可以。
+
+其他 Agent Skills 兼容运行时（如 Claude Code）：技能按 [agentskills.io](https://agentskills.io/specification) 规范组织（`name`/`description`/`license`/`metadata` + `references/`），克隆进对应技能目录即可，例如：
+
+```bash
+git clone https://github.com/TsukimioRinka/prompt-forge.git ~/.claude/skills/prompt-forge
+```
+
+（「对模型隐藏、仅明文唤醒」是 omp 的扩展字段；其他运行时按其自身惯例呈现技能。）
 
 ## 设计原则
 
@@ -57,6 +76,11 @@ git clone https://github.com/TsukimioRinka/prompt-forge.git ~/.omp/agent/skills/
 - 四仓星数、目录清单、文件大小、列名、命中率等全部可核验断言与实测**逐一吻合**
 - 发现 3 处问题并当轮修复复验：缓存目录缺失时 REFRESH 静默失败（→`mkdir -p` + `curl -fSL`）、gh 失效时 C/D 无降级（→匿名 REST）、f/prompts.chat 许可为 dual-license（数据 CC0 + 代码 MIT）
 - 大小写漂移、`%20` 空格目录、复合词未命中拆词三类故障场景演练，降级路径全部接得住
+
+## 标准与兼容
+
+- 遵循 [Agent Skills 规范](https://agentskills.io/specification)：`name` 与目录名一致（1-64、小写+连字符）、`description` ≤1024 字符、可选 `license` / `metadata` 字段、`references/` 渐进披露（长文拆引用文件，官方 spec 原文即此建议）
+- omp 专属字段：`hide: true` + `disable-model-invocation: true`；在未声明支持这两字段的运行时中的行为未验证
 
 ## License
 
